@@ -1,0 +1,26 @@
+ID,Name,TotalWorkload,ResearchCredits,PreferredSubjectCodes
+F001,Dr. Alice,16,4,DSA;DSA_L
+F002,Prof. Bob,16,2,DSA;DSA_L
+F003,Prof. Charlie,16,3,DSA;DSA_L;COA
+F004,Prof. Diana,16,5,DSA;DSA_L;COA
+F005,Dr. Evan,16,6,OOJ;OOJ_L
+F006,Prof. Fiona,16,2,OOJ;OOJ_L
+F007,Prof. George,16,4,OOJ;OOJ_L;LD
+F008,Prof. Hannah,16,3,OOJ;OOJ_L;LD
+F009,Dr. Ian,16,5,DBMS;DBMS_L
+F010,Prof. Julia,16,2,DBMS;DBMS_L
+F011,Prof. Kevin,16,4,DBMS;DBMS_L;UNIX_L
+F012,Prof. Liam,16,3,DBMS;DBMS_L;UNIX_L
+F013,Dr. Mary,16,6,MATH;WEB_L
+F014,Prof. Nathan,16,2,MATH;WEB_L
+F015,Prof. Olivia,16,4,MATH;WEB_L;UNIX_L
+F016,Prof. Peter,16,3,MATH;WEB_L;UNIX_L
+F017,Prof. Quinn,16,5,COA;DSA_L;OOJ_L
+F018,Prof. Rachel,16,2,COA;LD;DBMS_L
+F019,Prof. Steve,16,4,LD;WEB_L;DSA_L
+F020,Prof. Tina,16,3,LD;WEB_L;OOJ_L;DSA_L
+F021,Prof. Ursula,16,5,DSA;DSA_L;COA
+F022,Prof. Victor,16,2,OOJ;OOJ_L;LD
+F023,Prof. Wendy,16,4,DBMS;DBMS_L;UNIX_L
+F024,Prof. Xavier,16,3,MATH;WEB_L
+F025,Prof. Yvonne,16,5,LD;WEB_L;OOJ_L

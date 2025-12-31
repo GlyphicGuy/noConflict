@@ -1,0 +1,121 @@
+/* Main Theme: Dark Mode / Antigravity Style */
+.root {
+    -fx-base: #1e1e1e;
+    -fx-background-color: #121212;
+    -fx-font-family: 'Segoe UI', sans-serif;
+}
+
+.label {
+    -fx-text-fill: #e0e0e0;
+}
+
+.button {
+    -fx-background-color: #3f51b5;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.button:hover {
+    -fx-background-color: #5c6bc0;
+}
+
+.button:pressed {
+    -fx-background-color: #283593;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #1f1f1f;
+}
+
+.tab {
+    -fx-background-color: #2c2c2c;
+    -fx-text-fill: #b0b0b0;
+}
+
+.tab:selected {
+    -fx-background-color: #3f51b5;
+    -fx-text-fill: white;
+}
+
+.progress-bar {
+    -fx-accent: #00bcd4;
+}
+
+.card {
+    -fx-background-color: #1e1e1e;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 10, 0, 0, 5);
+    -fx-padding: 15;
+}
+
+/* --- Timetable Specifics --- */
+
+.timetable-grid {
+    -fx-background-color: #252525;
+    -fx-padding: 10;
+    -fx-hgap: 2;
+    -fx-vgap: 2;
+    -fx-background-radius: 5;
+}
+
+.timetable-header {
+    -fx-background-color: #333;
+    -fx-text-fill: #fff;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-padding: 5;
+    -fx-font-size: 11px;
+    -fx-background-radius: 3;
+}
+
+.timetable-day {
+    -fx-background-color: #424242;
+    -fx-text-fill: #ffd700;
+    /* Gold for visibility */
+    -fx-font-weight: bold;
+    -fx-alignment: center-left;
+    -fx-padding: 5 10;
+    -fx-font-size: 11px;
+    -fx-background-radius: 3;
+}
+
+.timetable-cell {
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 2, 0, 0, 1);
+    -fx-padding: 5;
+    -fx-alignment: center;
+}
+
+.cell-theory {
+    -fx-background-color: linear-gradient(to bottom right, #1a237e, #283593);
+    -fx-border-color: #3949ab;
+    -fx-border-width: 0 0 0 3;
+}
+
+.cell-lab {
+    -fx-background-color: linear-gradient(to bottom right, #bf360c, #d84315);
+    -fx-border-color: #ff5722;
+    -fx-border-width: 0 0 0 3;
+}
+
+.cell-break {
+    -fx-background-color: #212121;
+    -fx-text-fill: #616161;
+    -fx-alignment: center;
+    -fx-font-style: italic;
+    -fx-font-size: 10px;
+}
+
+.text-subject {
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+    -fx-text-fill: white;
+}
+
+.text-faculty {
+    -fx-font-size: 9px;
+    -fx-text-fill: #cfd8dc;
+}
