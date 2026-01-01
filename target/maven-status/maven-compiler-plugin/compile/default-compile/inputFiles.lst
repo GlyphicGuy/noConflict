@@ -7,6 +7,7 @@
 /home/maduqa/Desktop/Proj/noConflict-JavaMiniProj/src/main/java/com/scheduler/model/Subject.java
 /home/maduqa/Desktop/Proj/noConflict-JavaMiniProj/src/main/java/com/scheduler/model/Gene.java
 /home/maduqa/Desktop/Proj/noConflict-JavaMiniProj/src/main/java/com/scheduler/util/DataExporter.java
+/home/maduqa/Desktop/Proj/noConflict-JavaMiniProj/src/main/java/com/scheduler/engine/ConstraintSatisfaction.java
 /home/maduqa/Desktop/Proj/noConflict-JavaMiniProj/src/main/java/com/scheduler/model/Slot.java
 /home/maduqa/Desktop/Proj/noConflict-JavaMiniProj/src/main/java/com/scheduler/ui/MainApp.java
 /home/maduqa/Desktop/Proj/noConflict-JavaMiniProj/src/main/java/com/scheduler/ui/DashboardController.java

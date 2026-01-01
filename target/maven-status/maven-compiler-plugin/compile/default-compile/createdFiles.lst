@@ -1,3 +1,4 @@
+com/scheduler/engine/ConstraintSatisfaction.class
 com/scheduler/util/DataExporter.class
 com/scheduler/model/Faculty.class
 com/scheduler/engine/TimetableGenerator.class
@@ -6,6 +7,7 @@ com/scheduler/ui/MainApp.class
 com/scheduler/ui/DashboardController.class
 com/scheduler/model/Slot$Type.class
 com/scheduler/model/Slot.class
+com/scheduler/ui/DashboardController$1FacStats.class
 com/scheduler/model/Section.class
 com/scheduler/model/Gene.class
 com/scheduler/util/CsvParser.class

@@ -28,6 +28,7 @@ public class MainApp extends Application {
 
         primaryStage.setTitle("Engineering College Timetable Scheduler");
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 

@@ -42,15 +42,6 @@ public class DataExporter {
                         .sorted(Comparator.comparing(Slot::getDay).thenComparing(Slot::getStartTime))
                         .collect(Collectors.toList());
 
-                // Actually, a timetable usually has Days as Rows and Times as Cols (or vice
-                // versa).
-                // Let's do Days (Rows) x Times (Cols).
-                // Or Slot-based list?
-                // Grid format:
-                // | 08:00 | 09:00 | ...
-                // Mon | Subj | ...
-                // Tue | ...
-
                 // Extract unique Start Times for columns
                 List<String> timeHeaders = sortedSlots.stream()
                         .map(s -> s.getStartTime().toString())
@@ -102,37 +93,106 @@ public class DataExporter {
 
     public void exportToPdf(Chromosome chromosome, String filePath) {
         try {
-            Document document = new Document();
+            // Landscape mode for better width
+            Document document = new Document(com.lowagie.text.PageSize.A4.rotate());
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
             document.open();
+
+            // Font styles
+            com.lowagie.text.Font titleFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 16,
+                    com.lowagie.text.Font.BOLD);
+            com.lowagie.text.Font headerFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10,
+                    com.lowagie.text.Font.BOLD);
+            com.lowagie.text.Font cellFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 8,
+                    com.lowagie.text.Font.NORMAL);
+
+            // Highlight Style for Break/Lunch
+            com.lowagie.text.Font breakFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 8,
+                    com.lowagie.text.Font.BOLDITALIC, java.awt.Color.GRAY);
 
             Map<String, List<Gene>> genesBySection = chromosome.getGenes().stream()
                     .collect(Collectors.groupingBy(g -> g.getSection().getName()));
 
-            for (Map.Entry<String, List<Gene>> entry : genesBySection.entrySet()) {
-                String sectionName = entry.getKey();
-                document.add(new Paragraph("Timetable for Section: " + sectionName));
+            // Sort sections
+            List<String> sortedSections = genesBySection.keySet().stream().sorted().collect(Collectors.toList());
+
+            for (String sectionName : sortedSections) {
+                Paragraph title = new Paragraph("Timetable for Section: " + sectionName, titleFont);
+                title.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+                document.add(title);
                 document.add(new Paragraph(" ")); // Spacer
 
-                PdfPTable table = new PdfPTable(6); // Day + 5 slots? Need dynamic cols
-                // Simplified List View for PDF (or complex grid if time permits)
-                // Let's do a simple list: Day | Time | Subject | Faculty
+                // Define Columns including breaks
+                String[] timeHeaders = {
+                        "08:00\n08:55", "08:55\n09:50", "BREAK\n09:50-10:20",
+                        "10:20\n11:15", "11:15\n12:10", "12:10\n13:05", "LUNCH\n13:05-14:00",
+                        "14:00\n14:55", "14:55\n15:50", "15:50\n16:45", "16:45\n17:40"
+                };
 
-                table.addCell("Day");
-                table.addCell("Time");
-                table.addCell("Subject");
-                table.addCell("Faculty");
+                // Map StartTime string to Column Index (0-based)
+                // Note: Breaks are at index 2 and 6
+                Map<String, Integer> timeToIndex = new java.util.HashMap<>();
+                timeToIndex.put("08:00", 0);
+                timeToIndex.put("08:55", 1);
+                // Break is 2
+                timeToIndex.put("10:20", 3);
+                timeToIndex.put("11:15", 4);
+                timeToIndex.put("12:10", 5);
+                // Lunch is 6
+                timeToIndex.put("14:00", 7);
+                timeToIndex.put("14:55", 8);
+                timeToIndex.put("15:50", 9);
+                timeToIndex.put("16:45", 10);
 
-                List<Gene> sortedGenes = entry.getValue().stream()
-                        .sorted(Comparator.comparing((Gene g) -> g.getSlot().getDay())
-                                .thenComparing(g -> g.getSlot().getStartTime()))
-                        .collect(Collectors.toList());
+                PdfPTable table = new PdfPTable(timeHeaders.length + 1); // +1 for Day column
+                table.setWidthPercentage(100);
 
-                for (Gene g : sortedGenes) {
-                    table.addCell(g.getSlot().getDay().toString());
-                    table.addCell(g.getSlot().getStartTime() + " - " + g.getSlot().getEndTime());
-                    table.addCell(g.getSubject().getName());
-                    table.addCell(g.getFaculty().toString());
+                // Add Headers
+                table.addCell(new com.lowagie.text.Phrase("Day/Time", headerFont));
+                for (String t : timeHeaders) {
+                    table.addCell(new com.lowagie.text.Phrase(t, headerFont));
+                }
+
+                String[] days = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY" };
+
+                for (String day : days) {
+                    // Day Cell
+                    table.addCell(new com.lowagie.text.Phrase(day, headerFont));
+
+                    // Cells for each time slot
+                    for (int i = 0; i < timeHeaders.length; i++) {
+                        // Check if this column is a Break or Lunch
+                        if (i == 2) {
+                            table.addCell(new com.lowagie.text.Phrase("BREAK", breakFont));
+                            continue;
+                        }
+                        if (i == 6) {
+                            table.addCell(new com.lowagie.text.Phrase("LUNCH", breakFont));
+                            continue;
+                        }
+
+                        int currentSlotIdx = i;
+                        // Find gene
+                        Gene gene = genesBySection.get(sectionName).stream()
+                                .filter(g -> g.getSlot().getDay().toString().equals(day))
+                                .filter(g -> {
+                                    Integer idx = timeToIndex.get(g.getSlot().getStartTime().toString());
+                                    return idx != null && idx == currentSlotIdx;
+                                })
+                                .findFirst()
+                                .orElse(null);
+
+                        if (gene != null) {
+                            String cellText = gene.getSubject().getName() + "\n(" + gene.getFaculty().get(0).getName();
+                            if (gene.getFaculty().size() > 1) {
+                                cellText += " +" + (gene.getFaculty().size() - 1);
+                            }
+                            cellText += ")";
+                            table.addCell(new com.lowagie.text.Phrase(cellText, cellFont));
+                        } else {
+                            table.addCell(""); // Empty cell
+                        }
+                    }
                 }
 
                 document.add(table);
