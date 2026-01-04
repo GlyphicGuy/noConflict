@@ -25,64 +25,92 @@ public class DataExporter {
             Map<String, List<Gene>> genesBySection = chromosome.getGenes().stream()
                     .collect(Collectors.groupingBy(g -> g.getSection().getName()));
 
-            for (Map.Entry<String, List<Gene>> entry : genesBySection.entrySet()) {
-                String sectionName = entry.getKey();
-                List<Gene> genes = entry.getValue();
+            // Sort sections
+            List<String> sortedSections = genesBySection.keySet().stream().sorted().collect(Collectors.toList());
 
+            // Define Time Headers with mapping to Column Index
+            String[] timeHeaders = {
+                    "08:00\n08:55", "08:55\n09:50", "BREAK\n09:50-10:20",
+                    "10:20\n11:15", "11:15\n12:10", "12:10\n13:05", "LUNCH\n13:05-14:00",
+                    "14:00\n14:55", "14:55\n15:50", "15:50\n16:45", "16:45\n17:40"
+            };
+
+            // Map StartTime string to Column Index (1-based, 0 is Day)
+            // Note: Breaks are at index 2 and 6 (in 0-based timeHeaders) -> Columns 3 and 7
+            // (1-based in Excel)
+            Map<String, Integer> timeToCol = new java.util.HashMap<>();
+            timeToCol.put("08:00", 1);
+            timeToCol.put("08:55", 2);
+            // Break is 3
+            timeToCol.put("10:20", 4);
+            timeToCol.put("11:15", 5);
+            timeToCol.put("12:10", 6);
+            // Lunch is 7
+            timeToCol.put("14:00", 8);
+            timeToCol.put("14:55", 9);
+            timeToCol.put("15:50", 10);
+            timeToCol.put("16:45", 11);
+
+            for (String sectionName : sortedSections) {
                 Sheet sheet = workbook.createSheet(sectionName);
 
-                // Header Row (Slots)
+                // Header Row
                 Row header = sheet.createRow(0);
-                header.createCell(0).setCellValue("Day");
-
-                // Collect unique slots sorted by time
-                List<Slot> sortedSlots = genes.stream()
-                        .map(Gene::getSlot)
-                        .distinct()
-                        .sorted(Comparator.comparing(Slot::getDay).thenComparing(Slot::getStartTime))
-                        .collect(Collectors.toList());
-
-                // Extract unique Start Times for columns
-                List<String> timeHeaders = sortedSlots.stream()
-                        .map(s -> s.getStartTime().toString())
-                        .distinct()
-                        .sorted()
-                        .collect(Collectors.toList());
-
-                int colNum = 1;
-                for (String time : timeHeaders) {
-                    header.createCell(colNum++).setCellValue(time);
+                header.createCell(0).setCellValue("Day/Time");
+                for (int i = 0; i < timeHeaders.length; i++) {
+                    header.createCell(i + 1).setCellValue(timeHeaders[i]);
                 }
 
-                String[] days = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY" };
-                int rowNum = 1;
-                for (String day : days) {
-                    Row row = sheet.createRow(rowNum++);
+                // Style for Header
+                CellStyle headerStyle = workbook.createCellStyle();
+                Font font = workbook.createFont();
+                font.setBold(true);
+                headerStyle.setFont(font);
+                for (int i = 0; i < header.getLastCellNum(); i++) {
+                    header.getCell(i).setCellStyle(headerStyle);
+                }
+
+                String[] days = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY" };
+
+                for (int r = 0; r < days.length; r++) {
+                    Row row = sheet.createRow(r + 1);
+                    String day = days[r];
                     row.createCell(0).setCellValue(day);
 
-                    for (int i = 0; i < timeHeaders.size(); i++) {
-                        String time = timeHeaders.get(i);
-                        // Find gene for this day + time
-                        Gene gene = genes.stream()
-                                .filter(g -> g.getSlot().getDay().toString().equals(day)
-                                        && g.getSlot().getStartTime().toString().equals(time))
-                                .findFirst()
-                                .orElse(null);
+                    // Fill Static Breaks
+                    row.createCell(3).setCellValue("BREAK");
+                    row.createCell(7).setCellValue("LUNCH");
 
-                        if (gene != null) {
-                            String cellValue = gene.getSubject().getName() + "\n(" + gene.getFaculty().get(0).getName()
-                                    + ")";
-                            if (gene.getFaculty().size() > 1) {
-                                cellValue += " + " + (gene.getFaculty().size() - 1) + " others";
+                    // Genes for this day
+                    List<Gene> dayGenes = genesBySection.get(sectionName).stream()
+                            .filter(g -> g.getSlot().getDay().toString().equals(day))
+                            .collect(Collectors.toList());
+
+                    for (Gene g : dayGenes) {
+                        Integer col = timeToCol.get(g.getSlot().getStartTime().toString());
+                        if (col != null) {
+                            String cellValue = g.getSubject().getName() + "\n("
+                                    + g.getFaculty().get(0).getName();
+                            if (g.getFaculty().size() > 1) {
+                                cellValue += " +" + (g.getFaculty().size() - 1);
                             }
-                            row.createCell(i + 1).setCellValue(cellValue);
+                            cellValue += ")";
+
+                            Cell cell = row.createCell(col);
+                            cell.setCellValue(cellValue);
+
+                            // Wrap text
+                            CellStyle wrapStyle = workbook.createCellStyle();
+                            wrapStyle.setWrapText(true);
+                            cell.setCellStyle(wrapStyle);
                         }
                     }
                 }
 
                 // Auto size columns
-                for (int i = 0; i <= timeHeaders.size(); i++)
+                for (int i = 0; i <= timeHeaders.length; i++) {
                     sheet.autoSizeColumn(i);
+                }
             }
 
             try (FileOutputStream fileOut = new FileOutputStream(filePath)) {

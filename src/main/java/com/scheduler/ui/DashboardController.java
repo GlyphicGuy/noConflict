@@ -53,8 +53,6 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
-        loadDefaultData();
-
         // Listener for Dropdown
         sectionSelector.setOnAction(e -> {
             String selected = sectionSelector.getValue();
@@ -66,36 +64,6 @@ public class DashboardController {
                 updateButtonStates();
             }
         });
-    }
-
-    private void loadDefaultData() {
-        try {
-            // Hardcoded paths for development convenience
-            String projectDir = System.getProperty("user.dir");
-            String sectionsPath = projectDir + "/data/sections.csv";
-            String facultyPath = projectDir + "/data/faculty.csv";
-            String subjectsPath = projectDir + "/data/subjects.csv";
-
-            File fSections = new File(sectionsPath);
-            File fFaculty = new File(facultyPath);
-            File fSubjects = new File(subjectsPath);
-
-            if (fSections.exists() && fFaculty.exists() && fSubjects.exists()) {
-                sectionList = new CsvParser().loadSections(sectionsPath);
-                facultyList = new CsvParser().loadFaculty(facultyPath);
-                subjectList = new CsvParser().loadSubjects(subjectsPath);
-
-                updateStatus("Auto-loaded: " + sectionList.size() + " Sections, " +
-                        facultyList.size() + " Faculty, " +
-                        subjectList.size() + " Subjects.");
-                updateWorkloadView();
-            } else {
-                updateStatus("Data files not found in /data folder. Please import manually.");
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to auto-load data: " + e.getMessage());
-            updateStatus("Auto-load failed. Import manually.");
-        }
     }
 
     @FXML
@@ -218,7 +186,11 @@ public class DashboardController {
         File file = saveFile("Export Excel", "*.xlsx");
         if (file != null) {
             try {
-                new DataExporter().exportToExcel(currentTimetable, file.getAbsolutePath());
+                String path = file.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".xlsx")) {
+                    path += ".xlsx";
+                }
+                new DataExporter().exportToExcel(currentTimetable, path);
                 updateStatus("Exported to Excel successfully.");
             } catch (Exception e) {
                 showError("Export Failed", e);
@@ -233,7 +205,11 @@ public class DashboardController {
         File file = saveFile("Export PDF", "*.pdf");
         if (file != null) {
             try {
-                new DataExporter().exportToPdf(currentTimetable, file.getAbsolutePath());
+                String path = file.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".pdf")) {
+                    path += ".pdf";
+                }
+                new DataExporter().exportToPdf(currentTimetable, path);
                 updateStatus("Exported to PDF successfully.");
             } catch (Exception e) {
                 showError("Export Failed", e);
